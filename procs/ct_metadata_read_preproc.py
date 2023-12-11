@@ -140,16 +140,16 @@ if __name__ == "__main__":
     # resized_xray2 = origin_xray2.resize([256, 256])
     # resized_xray2.save(ROOT_dir + 'resized_drr02.bmp')
     #
-    # # # # concatenate from here
-    # result_img = sitk.ReadImage(ROOT_dir + 'result_img.nii')
-    # np_result_img = sitk.GetArrayFromImage(result_img)
-    # xray1 = Image.open(ROOT_dir + 'resized_drr01.bmp')
-    # xray2 = Image.open(ROOT_dir + 'resized_drr02.bmp')
-    #
-    # f = h5py.File(ROOT_dir + 'ct_xray_data.h5', 'w')
-    # f['ct'] = np_result_img
-    # f['ori_size'] = np.int64(320)
-    # f['spacing'] = [1.0, 1.0, 1.0]
-    # f['xray1'] = xray1
-    # f['xray2'] = xray2
-    # f.close()
+    # # # concatenate from here
+    result_img = sitk.ReadImage(ROOT_dir + 'result_img.nii')
+    np_result_img = sitk.GetArrayFromImage(result_img)
+    xray1 = Image.open(ROOT_dir + 'resized_drr01.bmp')
+    xray2 = Image.open(ROOT_dir + 'resized_drr02.bmp')
+
+    f = h5py.File(ROOT_dir + 'ct_xray_data.h5', 'w')
+    f['ct'] = np_result_img
+    f['ori_size'] = np.int64(320)
+    f['spacing'] = [1.0, 1.0, 1.0]
+    f['xray1'] = xray1
+    f['xray2'] = xray2
+    f.close()

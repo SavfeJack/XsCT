@@ -7,6 +7,6 @@ scikit-image
 tensorboardX
 torchvision
 tqdm
-scikit-image
 SimpleITK
 vtk
+scipy
