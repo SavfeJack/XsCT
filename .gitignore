@@ -2,3 +2,5 @@
 *.pyc
 *.h5
 XsCT/checkpoints/
+XsCT/data/mesh_data/
+XsCT/data/mesh_data_raw/
