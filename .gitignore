@@ -4,3 +4,6 @@
 XsCT/checkpoints/
 XsCT/data/mesh_data/
 XsCT/data/mesh_data_raw/
+XsCT/data/mesh_data_128/
+XsCT/result_1212/
+XsCT/result_128_1213/
