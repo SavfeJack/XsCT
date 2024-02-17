@@ -47,7 +47,7 @@ def parse_args():
                      help='if specified, print more debugging information')
   parse.add_argument('--load_path', type=str, default=None, dest='load_path',
                      help='if load_path is not None, model will load from load_path')
-  parse.add_argument('--how_many', type=int, dest='how_many', default=50,
+  parse.add_argument('--how_many', type=int, dest='how_many', default=150,
                      help='if specified, only run this number of test samples for visualization')
   parse.add_argument('--resultdir', type=str, default='./result/multiview', dest='resultdir',
                      help='dir to save result')

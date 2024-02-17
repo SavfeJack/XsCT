@@ -45,7 +45,7 @@ TRAIN:
   beta1: 0.5
   beta2: 0.99
   lr: 0.0002
-  batch_size: 4
+  batch_size: 1
   weight_decay_if: False
 
 CTGAN:
@@ -81,8 +81,8 @@ TD_GAN:
 D3_GAN:
   noise_len: 1000
   input_shape: [4,4,4]
-  output_shape: [64,64,64]
-  encoder_input_shape: [64, 64]
+  output_shape: [256,256,256]
+  encoder_input_shape: [256, 256]
   encoder_input_nc: 1
   encoder_norm: 'instance'
   multi_view: [1,2,3]
@@ -92,7 +92,7 @@ D3_GAN:
 
 DATA_AUG:
   select_slice_num: 0
-  fine_size: 64
-  ct_channel: 64
+  fine_size: 256
+  ct_channel: 256
   xray_channel: 1
   resize_size: 150
