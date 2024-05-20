@@ -43,22 +43,24 @@ class AlignDataSet(Base_DataSet):
 
   def load_file(self, file_path):
     hdf5 = h5py.File(file_path, 'r')
+    orientation1 = np.asarray(hdf5['orientation1'])
+    orientation2 = np.asarray(hdf5['orientation2'])
     ct_data = np.asarray(hdf5['ct'])
     x_ray1 = np.asarray(hdf5['xray1'])
     x_ray2 = np.asarray(hdf5['xray2'])
     x_ray1 = np.expand_dims(x_ray1, 0)
     x_ray2 = np.expand_dims(x_ray2, 0)
     hdf5.close()
-    return ct_data, x_ray1, x_ray2
+    return ct_data, x_ray1, x_ray2, orientation1, orientation2
 
   '''
   generate batch
   '''
   def pull_item(self, item):
     file_path = self.get_image_path(self.dir_root, self.dataset_paths[item])
-    ct_data, x_ray1, x_ray2 = self.load_file(file_path)
+    ct_data, x_ray1, x_ray2, orientation1, orientation2 = self.load_file(file_path)
 
     # Data Augmentation
-    ct, xray1, xray2 = self.data_augmentation([ct_data, x_ray1, x_ray2])
+    ct, xray1, xray2, orientation1, orientation2 = self.data_augmentation([ct_data, x_ray1, x_ray2, orientation1, orientation2])
 
-    return ct, xray1, xray2, file_path
+    return ct, xray1, xray2, file_path, orientation1, orientation2

@@ -154,25 +154,27 @@ class CT_XRAY_Data_TestM(object):
 class CT_XRAY_Data_Augmentation_Multi(object):
   def __init__(self, opt=None):
     self.augment = List_Compose([
-      (None, None, None),
+      (None, None, None, None, None),
 
       (Resize_image(size=(opt.ct_channel, opt.fine_size, opt.fine_size)),
        Resize_image(size=(opt.xray_channel, opt.fine_size, opt.fine_size)),
-       Resize_image(size=(opt.xray_channel, opt.fine_size, opt.fine_size)),),
+       Resize_image(size=(opt.xray_channel, opt.fine_size, opt.fine_size)), None, None),
 
-      (Limit_Min_Max_Threshold(opt.CT_MIN_MAX[0], opt.CT_MIN_MAX[1]), None, None),
+      (Limit_Min_Max_Threshold(opt.CT_MIN_MAX[0], opt.CT_MIN_MAX[1]), None, None, None, None),
 
       (Normalization(opt.CT_MIN_MAX[0], opt.CT_MIN_MAX[1]),
        Normalization(opt.XRAY1_MIN_MAX[0], opt.XRAY1_MIN_MAX[1]),
-       Normalization(opt.XRAY2_MIN_MAX[0], opt.XRAY2_MIN_MAX[1])),
+       Normalization(opt.XRAY2_MIN_MAX[0], opt.XRAY2_MIN_MAX[1]),
+       Normalization(-180, 180),
+       Normalization(-180, 180)),
 
       (Normalization_gaussian(opt.CT_MEAN_STD[0], opt.CT_MEAN_STD[1]),
        Normalization_gaussian(opt.XRAY1_MEAN_STD[0], opt.XRAY1_MEAN_STD[1]),
-       Normalization_gaussian(opt.XRAY2_MEAN_STD[0], opt.XRAY2_MEAN_STD[1])),
+       Normalization_gaussian(opt.XRAY2_MEAN_STD[0], opt.XRAY2_MEAN_STD[1]), None, None),
 
       # (Get_Key_slice(opt.select_slice_num), None, None),
 
-      (ToTensor(), ToTensor(), ToTensor())
+      (ToTensor(), ToTensor(), ToTensor(), ToTensor(), ToTensor())
 
     ])
 
