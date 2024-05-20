@@ -12,6 +12,7 @@ import scipy.ndimage
 def shrink_image_to_128(source_file_name, target_file_name):
     image = io.imread(source_file_name)
     resized_volume = transform.resize(image, (128, 128))
+    resized_volume = skimage.img_as_ubyte(resized_volume)
     io.imsave(target_file_name, resized_volume)
 
 
@@ -26,11 +27,12 @@ def shrink_volume_to_128(source_file_name, target_file_name):
 
 
 if __name__ == '__main__':
-    raw_data_root_folder = r'C:\Users\SAVFE-RD1\XsCT\XsCT\data\mesh_data_raw'
-    target_data_root_folder = r'C:\Users\SAVFE-RD1\XsCT\XsCT\data\mesh_data'
+    raw_data_root_folder = r'C:\XsCT\XsCT\data\COLONOgraphy\mesh_data_256'
+    target_data_root_folder = r'C:\XsCT\XsCT\data\mesh_data_128'
     sub_folders = next(os.walk(raw_data_root_folder))[1]
     for sub_folder in sub_folders:
-        os.mkdir(target_data_root_folder + '\\' + sub_folder)
+        if not os.path.exists(target_data_root_folder + '\\' + sub_folder):
+            os.mkdir(target_data_root_folder + '\\' + sub_folder)
         shrink_image_to_128(raw_data_root_folder + '\\' + sub_folder + '\\resized_drr01.bmp',
                             target_data_root_folder + '\\' + sub_folder + '\\resized_drr01.bmp')
         shrink_image_to_128(raw_data_root_folder + '\\' + sub_folder + '\\resized_drr02.bmp',

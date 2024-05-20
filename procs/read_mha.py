@@ -18,7 +18,7 @@ def numpyToVTK(data):
 
 if __name__ == "__main__":
     itk_smap_app_path = r'C:\Program Files\ITK-SNAP 4.0\bin\ITK-SNAP.exe'
-    ROOT_dir = r'C:\Users\SAVFE-RD1\XsCT\XsCT\result\multiview\mesh_data\test_100\CT\mesh_data_0139_ct_xray_data'
+    ROOT_dir = r'C:\XsCT\XsCT\result\multiview\mesh_data_128_L_batch1\test_100\CT\mesh_data_0757_ct_xray_data'
 
     originCT = sitk.ReadImage(ROOT_dir + r"\real_ct.mha")
     generatedCT = sitk.ReadImage(ROOT_dir + r"\fake_ct.mha")

@@ -5,8 +5,8 @@ numpy
 opencv-python
 scikit-image
 tensorboardX
-torchvision
 tqdm
 SimpleITK
 vtk
 scipy
+pillow

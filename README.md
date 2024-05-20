@@ -62,7 +62,7 @@ python train.py --ymlpath=./view_mode/singleview.yml --dataroot=./data/mesh_data
 ```
 2. **multi-view：**  
 ```
-python train.py --ymlpath=./view_mode/multiview.yml --dataroot=./data/mesh_data --dataset=train --tag=multiview --data=mesh_data --dataset_class=align_ct_xray_views_std --model_class=MultiViewCTGAN --datasetfile=./data/train.txt --valid_datasetfile=./data/test.txt --valid_dataset=test
+python train.py --ymlpath=./view_mode/multiview.yml --dataroot=./data/mesh_data_128 --dataset=train --tag=multiview --data=mesh_data_128 --dataset_class=align_ct_xray_views_std --model_class=MultiViewCTGAN --datasetfile=./data/train.txt --valid_datasetfile=./data/test.txt --valid_dataset=test
 ```
 
 ### Test/ Visual:

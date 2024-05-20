@@ -125,6 +125,8 @@ class Base_Model(nn.Module):
     epoch_count = 0
     if self.training:
       self.schedulers = [get_scheduler(optimizer, opt) for optimizer in self.optimizers]
+      if (opt.check_point is not None) or (opt.load_path is not None):
+        self.load_networks(opt.check_point, opt.load_path, opt.latest)
 
     if not self.training or (opt.check_point is not None) or (opt.load_path is not None):
       total_steps, epoch_count = self.load_networks(opt.check_point, opt.load_path, opt.latest)
