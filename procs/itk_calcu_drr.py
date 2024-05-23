@@ -23,7 +23,7 @@ def DigitallyReconstructedRadiograph(
         camera_tz=-15.,
         rotation_x=-90.,
         rotation_y=0.,
-        rotation_z=180.,
+        rotation_z=90.,
         projection_normal_p_x=0.,
         projection_normal_p_y=0.,
         rotation_center_rt_volume_center_x=0.,
@@ -105,11 +105,10 @@ def DigitallyReconstructedRadiograph(
     return filter.GetOutput()
 
 # for path in Path:
-for num in range(140):
-    save = 'C:\\XsCT\\XsCT\\data\\COLONOgraphy\\mesh_data_256\\mesh_data_%04d' % (num+785)
-    path = Path[num]
+for num in range(1):
+    save = 'C:\\XsCT\\XsCT\\data\\sawbone\\sawbone_data_%04d' % (num+1)
     input_name = save + '\\result_img.nii'
-    save_path = save + "\\resized_drr01.bmp"
+    save_path = save + "\\resized_drr02.bmp"
     # save_ct = save + '\\result_img.nii'
 
     volume_lung = itk.imread(input_name, itk.ctype('float'))  # 读取影像文件，并将数据格式转换为float

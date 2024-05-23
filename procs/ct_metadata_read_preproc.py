@@ -185,13 +185,14 @@ def img_pad(input_img, target_size=[258, 258, 258], constant=-1024):
 
 if __name__ == "__main__":
     # # ROOT_dir = 'C:\\Users\\user\\Desktop\\temp\\'
-    # Save_dir = 'C:\\XsCT\\XsCT\\data\\COLONOgraphy\\crop_data\\'
+    # Save_dir = 'C:\\XsCT\\XsCT\\data\\sawbone\\'
     # ROOT_dir = 'C:\\XsCT\\XsCT\\data\\COLONOgraphy\\manifest-sFI3R7DS3069120899390652954\\CT COLONOGRAPHY\\'
     # seg_dir = glob.glob(os.path.join('C:\\XsCT\\XsCT\\data\\COLONOgraphy\\CTSpine1K\\trainset_all', "*"))
     # num = 1
     #
     # # 開啟 CSV 檔案
-    # with open('C:\\XsCT\\XsCT\\data\\COLONOgraphy\\manifest-sFI3R7DS3069120899390652954\\Path.csv', newline='') as csvfile:
+    # with open('C:\\XsCT\\XsCT\\data\\COLONOgraphy\\manifest-sFI3R7DS3069120899390652954\\Path.csv',
+    #           newline='') as csvfile:
     #
     #     # 讀取 CSV 檔案內容
     #     rows = csv.reader(csvfile)
@@ -225,7 +226,7 @@ if __name__ == "__main__":
     #         print('size: ', size)
     #         print('spacing: ', spacing)
     #
-    #         seg_img = sitk.ReadImage(seg_dir[num-1])
+    #         seg_img = sitk.ReadImage(seg_dir[num - 1])
     #
     #         img = img_respacing(image3D)
     #         seg_img = img_respacing(seg_img)
@@ -234,15 +235,54 @@ if __name__ == "__main__":
     #         img = crop_ROI(img, seg_img)
     #
     #         arr = sitk.GetArrayFromImage(img)
-    #         result_img = arr[int((arr.shape[0]/2)-128):int((arr.shape[0]/2)+128), int((arr.shape[1]/2)-128):int((arr.shape[1]/2)+128), int((arr.shape[1]/2)-128):int((arr.shape[1]/2)+128)]
+    #         result_img = arr[int((arr.shape[0] / 2) - 128):int((arr.shape[0] / 2) + 128),
+    #                      int((arr.shape[1] / 2) - 128):int((arr.shape[1] / 2) + 128),
+    #                      int((arr.shape[1] / 2) - 128):int((arr.shape[1] / 2) + 128)]
     #         result_img = sitk.GetImageFromArray(result_img)
     #
-    #         path = Save_dir + 'mesh_data_%03d\\' % num
+    #         path = Save_dir + 'mesh_data_%04d\\' % num
     #         if not os.path.exists(path):
     #             os.mkdir(path)
     #         # sitk.WriteImage(img, path + 'temp.nii')
     #         sitk.WriteImage(result_img, path + 'result_img.nii')
     #         num += 1
+
+    # # #--------------------------------------------------------------------------------------
+    # sawbone read and preprocess
+    Save_dir = 'C:\\XsCT\\XsCT\\data\\sawbone\\'
+    ROOT_dir = 'D:\\Dataset\\sawbone\\S66710\\S3010\\'
+
+    series_IDs = sitk.ImageSeriesReader.GetGDCMSeriesIDs(ROOT_dir)
+    if not series_IDs:
+        print("ERROR: given directory \"" + ROOT_dir + "\" does not contain a DICOM series.")
+
+    series_file_names = sitk.ImageSeriesReader.GetGDCMSeriesFileNames(ROOT_dir, series_IDs[0])
+
+    series_reader = sitk.ImageSeriesReader()
+    series_reader.SetFileNames(series_file_names)
+
+    series_reader.MetaDataDictionaryArrayUpdateOn()
+    series_reader.LoadPrivateTagsOn()
+    image3D = series_reader.Execute()
+    size = np.array(list(reversed(image3D.GetSize())))
+    spacing = np.array(list(reversed(image3D.GetSpacing())))
+    print('size: ', size)
+    print('spacing: ', spacing)
+
+    img = img_respacing(image3D)
+    img = img_pad(img)
+    arr = sitk.GetArrayFromImage(img)
+    arr = arr[::-1, ::-1, :]
+    result_img = arr[int((arr.shape[0] / 2) - 128):int((arr.shape[0] / 2) + 128),
+                 int((arr.shape[1] / 2) - 128):int((arr.shape[1] / 2) + 128),
+                 int((arr.shape[2] / 2) - 128):int((arr.shape[2] / 2) + 128)]
+    result_img = sitk.GetImageFromArray(result_img)
+
+    path = Save_dir + 'sawbone_data_%04d\\' % 1
+    if not os.path.exists(path):
+        os.mkdir(path)
+    # sitk.WriteImage(img, path + 'temp.nii')
+    sitk.WriteImage(result_img, path + 'result_img.nii')
 
     # # #--------------------------------------------------------------------------------------
     # # # # read and process
@@ -284,19 +324,19 @@ if __name__ == "__main__":
     # resized_xray2.save(ROOT_dir + 'resized_drr02.bmp')
     #
     # # # # concatenate from here
-    ROOT_dir = 'C:\\XsCT\\XsCT\\data\\COLONOgraphy\\mesh_data_256'
-    Path = glob.glob(os.path.join(ROOT_dir, '*'))
-    for num in range(924):
-        ROOT_dir = Path[num]
-        result_img = sitk.ReadImage(ROOT_dir + '\\result_img.nii')
-        np_result_img = sitk.GetArrayFromImage(result_img)
-        xray1 = Image.open(ROOT_dir + '\\resized_drr01.bmp')
-        xray2 = Image.open(ROOT_dir + '\\resized_drr02.bmp')
-
-        f = h5py.File(ROOT_dir + '\\ct_xray_data.h5', 'w')
-        f['ct'] = np_result_img
-        f['ori_size'] = np.int64(320)
-        f['spacing'] = [1.0, 1.0, 1.0]
-        f['xray1'] = xray1
-        f['xray2'] = xray2
-        f.close()
+    # ROOT_dir = 'C:\\XsCT\\XsCT\\data\\COLONOgraphy\\mesh_data_256'
+    # Path = glob.glob(os.path.join(ROOT_dir, '*'))
+    # for num in range(924):
+    #     ROOT_dir = Path[num]
+    #     result_img = sitk.ReadImage(ROOT_dir + '\\result_img.nii')
+    #     np_result_img = sitk.GetArrayFromImage(result_img)
+    #     xray1 = Image.open(ROOT_dir + '\\resized_drr01.bmp')
+    #     xray2 = Image.open(ROOT_dir + '\\resized_drr02.bmp')
+    #
+    #     f = h5py.File(ROOT_dir + '\\ct_xray_data.h5', 'w')
+    #     f['ct'] = np_result_img
+    #     f['ori_size'] = np.int64(320)
+    #     f['spacing'] = [1.0, 1.0, 1.0]
+    #     f['xray1'] = xray1
+    #     f['xray2'] = xray2
+    #     f.close()

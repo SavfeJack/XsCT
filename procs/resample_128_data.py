@@ -27,8 +27,8 @@ def shrink_volume_to_128(source_file_name, target_file_name):
 
 
 if __name__ == '__main__':
-    raw_data_root_folder = r'C:\XsCT\XsCT\data\COLONOgraphy\mesh_data_256'
-    target_data_root_folder = r'C:\XsCT\XsCT\data\mesh_data_128'
+    raw_data_root_folder = r'C:\XsCT\XsCT\data\sawbone'
+    target_data_root_folder = r'C:\XsCT\XsCT\data\sawbone'
     sub_folders = next(os.walk(raw_data_root_folder))[1]
     for sub_folder in sub_folders:
         if not os.path.exists(target_data_root_folder + '\\' + sub_folder):
