@@ -1,7 +1,6 @@
 .idea/
 *.pyc
 *.h5
-XsCT/checkpoints/
 XsCT/data/mesh_data/
 XsCT/data/mesh_data_raw/
 XsCT/data/mesh_data_128/
@@ -34,3 +33,4 @@ XsCT/result/
 XsCT/result_128_v3/
 XsCT/data/sawbone/
 XsCT/test/image_operator.py
+XsCT/checkpoints/
