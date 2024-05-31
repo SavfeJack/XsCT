@@ -162,7 +162,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         discrete.ComputeScalarsOff()
         discrete.ComputeGradientsOff()
         discrete.ComputeNormalsOn()
-        discrete.SetValue(0, 100)
+        discrete.SetValue(0, 250)
 
         # marchingCubes = vtk.vtkMarchingCubes()
         # marchingCubes.SetInputConnection(vtk_data.GetOutputPort())
@@ -275,6 +275,15 @@ class Ui_MainWindow(QtWidgets.QWidget):
     def slot_Cal_CT(self):
         self.sign_ct_cal.emit('start')
         print('start CT calculating......')
+        # dir_choose = QFileDialog.getExistingDirectory(self.centralwidget, "选取文件夹", os.getcwd())  # 起始路径
+        #
+        # if dir_choose == "":
+        #     print("\n取消选择")
+        #     return
+        #
+        # print("\n你选择的文件夹为:")
+        # print(dir_choose)
+        # self.sign_ct_cal.emit(dir_choose)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])

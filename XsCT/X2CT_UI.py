@@ -11,6 +11,8 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from mainwindow.main_window import Ui_MainWindow
 import h5py
 from libs.dataset.data_augmentation import CT_XRAY_Data_Augmentation_Multi
+from PIL import Image
+import SimpleITK as sitk
 
 import sys
 module_path = os.path.abspath(os.getcwd() + '\\..')
@@ -153,19 +155,35 @@ class X2CT(QtWidgets.QWidget):
     return torch.stack([ct]), [torch.stack([xray1]), torch.stack([xray2])], file_path
 
   def getImgfromDir_AP(self, dirname):
-    file_path = os.path.join(dirname, 'ct_xray_data.h5')
-    hdf5 = h5py.File(file_path, 'r')
-    self.ct_data = np.asarray(hdf5['ct'])
-    self.x_ray1 = np.asarray(hdf5['xray1'])
-    self.x_ray2 = np.asarray(hdf5['xray2'])
+    self.x_ray1 = Image.open(dirname)
+    self.x_ray1 = np.asarray(self.x_ray1.convert('L'))
     self.x_ray1 = np.expand_dims(self.x_ray1, 0)
-    self.x_ray2 = np.expand_dims(self.x_ray2, 0)
-    hdf5.close()
-    input = self.pull_item(self.ct_data, self.x_ray1, self.x_ray2, file_path)
-    generate_CT_transpose, real_CT_transpose = self.get_ct(input)
-    self.show_ct.emit([generate_CT_transpose, real_CT_transpose])
 
-    
+  def getImgfromDir_LAT(self, dirname):
+    self.file_path = dirname
+    self.x_ray2 = Image.open(dirname)
+    self.x_ray2 = np.asarray(self.x_ray2.convert('L'))
+    self.x_ray2 = np.expand_dims(self.x_ray2, 0)
+
+  def ct_calculate(self, dirname):
+    hdf5 = h5py.File('./CT/ct_xray_data.h5', 'r')
+    self.ct_data = np.asarray(hdf5['ct'])
+    hdf5.close()
+    input = self.pull_item(self.ct_data, self.x_ray1, self.x_ray2, self.file_path)
+    generate_CT_transpose, real_CT_transpose = self.get_ct(input)
+    real_CT_transpose = self.ct_data
+    self.show_ct.emit([generate_CT_transpose, real_CT_transpose])
+    # file_path = os.path.join(dirname, 'ct_xray_data.h5')
+    # hdf5 = h5py.File(file_path, 'r')
+    # self.ct_data = np.asarray(hdf5['ct'])
+    # self.x_ray1 = np.asarray(hdf5['xray1'])
+    # self.x_ray2 = np.asarray(hdf5['xray2'])
+    # self.x_ray1 = np.expand_dims(self.x_ray1, 0)
+    # self.x_ray2 = np.expand_dims(self.x_ray2, 0)
+    # hdf5.close()
+    # input = self.pull_item(self.ct_data, self.x_ray1, self.x_ray2, file_path)
+    # generate_CT_transpose, real_CT_transpose = self.get_ct(input)
+    # self.show_ct.emit([generate_CT_transpose, real_CT_transpose])
 
 
 if __name__ == '__main__':
@@ -174,8 +192,9 @@ if __name__ == '__main__':
   ui = Ui_MainWindow()
   ui.setupUi(MainWindow)
   model = X2CT()
-  ui.sign_AP.connect(model.getImgfromDir)
-  ui.sign_LAT.connect(model.getImgfromDir)
+  ui.sign_AP.connect(model.getImgfromDir_AP)
+  ui.sign_LAT.connect(model.getImgfromDir_LAT)
+  ui.sign_ct_cal.connect(model.ct_calculate)
   model.show_ct.connect(ui.add_ct)
   MainWindow.show()
 
