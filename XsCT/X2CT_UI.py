@@ -36,7 +36,7 @@ def parse_args():
                        help='checkpoint model to load')
     parse.add_argument('--load_path', type=str, default=None, dest='load_path',
                        help='if load_path is not None, model will load from load_path')
-    parse.add_argument('--latest', action='store_true', dest='latest',
+    parse.add_argument('--latest', default=True, dest='latest',
                        help='set to use latest cached model')
     parse.add_argument('--verbose', action='store_true', dest='verbose',
                        help='if specified, print more debugging information')

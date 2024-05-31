@@ -162,7 +162,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         discrete.ComputeScalarsOff()
         discrete.ComputeGradientsOff()
         discrete.ComputeNormalsOn()
-        discrete.SetValue(0, 250)
+        discrete.SetValue(0, 100)
 
         # marchingCubes = vtk.vtkMarchingCubes()
         # marchingCubes.SetInputConnection(vtk_data.GetOutputPort())
@@ -248,12 +248,13 @@ class Ui_MainWindow(QtWidgets.QWidget):
     def slot_AP_chooseDir(self):
         dir_choose = QFileDialog.getOpenFileName(self.centralwidget, "選取AP影像", os.getcwd())  # 起始路径
 
-        if dir_choose == "":
+        if dir_choose[0] == "":
             print("\n取消選擇")
             return
 
         qpixmap = QtGui.QPixmap()  # 建立 QPixmap 物件
         qpixmap.load(dir_choose[0])  # 讀取圖片
+        qpixmap = qpixmap.scaled(128,128,QtCore.Qt.KeepAspectRatio)
         self.label_3.setPixmap(qpixmap)
         print("\n你選擇的資料夾為:")
         print(dir_choose)
@@ -261,12 +262,13 @@ class Ui_MainWindow(QtWidgets.QWidget):
     def slot_LAT_chooseDir(self):
         dir_choose = QFileDialog.getOpenFileName(self.centralwidget, "選取LAT影像", os.getcwd())  # 起始路径
 
-        if dir_choose == "":
+        if dir_choose[0] == "":
             print("\n取消選擇")
             return
 
         qpixmap = QtGui.QPixmap()  # 建立 QPixmap 物件
         qpixmap.load(dir_choose[0])  # 讀取圖片
+        qpixmap = qpixmap.scaled(128, 128, QtCore.Qt.KeepAspectRatio)
         self.label_4.setPixmap(qpixmap)
         print("\n你選擇的資料夾為:")
         print(dir_choose)
