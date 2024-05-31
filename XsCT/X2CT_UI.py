@@ -20,7 +20,7 @@ x2ct_input = []
 
 def parse_args():
   parse = argparse.ArgumentParser(description='X2CT_UI')
-  parse.add_argument('--data', type=str, default='mesh_data_128_L', dest='data',
+  parse.add_argument('--data', type=str, default='mesh_data_128_sawbone_v2', dest='data',
                      help='input data ')
   parse.add_argument('--tag', type=str, default='multiview', dest='tag',
                      help='distinct from other try')
@@ -122,7 +122,7 @@ class X2CT(QtWidgets.QWidget):
       real_CT_transpose = real_CT
       # Inveser Deepth
       generate_CT_transpose = generate_CT_transpose[:, ::-1, :, :]
-      real_CT_transpose = real_CT_transpose[:, ::-1, :, :]
+      real_CT_transpose = real_CT_transpose[:, :, :, :]
       # To [0, 1]
       generate_CT_transpose = tensor_back_to_unnormalization(generate_CT_transpose, self.opt.CT_MEAN_STD[0],
                                                              self.opt.CT_MEAN_STD[1])
@@ -152,7 +152,7 @@ class X2CT(QtWidgets.QWidget):
 
     return torch.stack([ct]), [torch.stack([xray1]), torch.stack([xray2])], file_path
 
-  def getImgfromDir(self, dirname):
+  def getImgfromDir_AP(self, dirname):
     file_path = os.path.join(dirname, 'ct_xray_data.h5')
     hdf5 = h5py.File(file_path, 'r')
     self.ct_data = np.asarray(hdf5['ct'])
@@ -165,6 +165,8 @@ class X2CT(QtWidgets.QWidget):
     generate_CT_transpose, real_CT_transpose = self.get_ct(input)
     self.show_ct.emit([generate_CT_transpose, real_CT_transpose])
 
+    
+
 
 if __name__ == '__main__':
   app = QtWidgets.QApplication([])
@@ -172,7 +174,8 @@ if __name__ == '__main__':
   ui = Ui_MainWindow()
   ui.setupUi(MainWindow)
   model = X2CT()
-  ui.sign_one.connect(model.getImgfromDir)
+  ui.sign_AP.connect(model.getImgfromDir)
+  ui.sign_LAT.connect(model.getImgfromDir)
   model.show_ct.connect(ui.add_ct)
   MainWindow.show()
 

@@ -7,9 +7,12 @@ from vtkmodules.util.vtkImageImportFromArray import *
 from PyQt5.QtWidgets import QFileDialog
 from vtkmodules.util import numpy_support
 import numpy as np
+from PIL import Image
 
 class Ui_MainWindow(QtWidgets.QWidget):
-    sign_one = QtCore.pyqtSignal(str)
+    sign_AP = QtCore.pyqtSignal(str)
+    sign_LAT = QtCore.pyqtSignal(str)
+    sign_ct_cal = QtCore.pyqtSignal(str)
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
@@ -50,6 +53,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.horizontalLayout.addLayout(self.verticalLayout)
 
         MainWindow.setCentralWidget(self.centralwidget)
+        # Set menu bar
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
         self.menubar.setObjectName("menubar")
@@ -59,11 +63,23 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-        self.actionLoad_file = QtWidgets.QAction(MainWindow)
-        self.actionLoad_file.setObjectName("actionLoad_file")
-        self.menuFile.addAction(self.actionLoad_file)
+        # File->load AP
+        self.actionLoad_AP = QtWidgets.QAction(MainWindow)
+        self.actionLoad_AP.setObjectName("actionLoad_AP")
+        self.menuFile.addAction(self.actionLoad_AP)
+        self.actionLoad_AP.triggered.connect(self.slot_AP_chooseDir)
+        # File->load LAT
+        self.actionLoad_LAT = QtWidgets.QAction(MainWindow)
+        self.actionLoad_LAT.setObjectName("actionLoad_LAT")
+        self.actionLoad_LAT.triggered.connect(self.slot_LAT_chooseDir)
+        self.menuFile.addAction(self.actionLoad_LAT)
+        # calculate CT
+        self.actionCal_CT = QtWidgets.QAction(MainWindow)
+        self.actionCal_CT.setObjectName("actionCal_CT")
+        self.actionCal_CT.triggered.connect(self.slot_Cal_CT)
+        self.menuFile.addAction(self.actionCal_CT)
         self.menubar.addAction(self.menuFile.menuAction())
-        self.actionLoad_file.triggered.connect(self.slot_btn_chooseDir)
+
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -102,7 +118,9 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.label_3.setText(_translate("MainWindow", "TextLabel"))
         self.label_4.setText(_translate("MainWindow", "TextLabel"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
-        self.actionLoad_file.setText(_translate("MainWindow", "Load file"))
+        self.actionLoad_AP.setText(_translate("MainWindow", "Load AP"))
+        self.actionLoad_LAT.setText(_translate("MainWindow", "Load LAT"))
+        self.actionCal_CT.setText(_translate("MainWindow", "Calculate CT"))
 
     def add_ct(self, ct_list):
 
@@ -144,7 +162,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         discrete.ComputeScalarsOff()
         discrete.ComputeGradientsOff()
         discrete.ComputeNormalsOn()
-        discrete.SetValue(0, 500)
+        discrete.SetValue(0, 100)
 
         # marchingCubes = vtk.vtkMarchingCubes()
         # marchingCubes.SetInputConnection(vtk_data.GetOutputPort())
@@ -227,16 +245,36 @@ class Ui_MainWindow(QtWidgets.QWidget):
         # self.iren_xray.Initialize()
         # self.iren_pred.Initialize()
 
-    def slot_btn_chooseDir(self):
-        dir_choose = QFileDialog.getExistingDirectory(self.centralwidget, "选取文件夹", os.getcwd())  # 起始路径
+    def slot_AP_chooseDir(self):
+        dir_choose = QFileDialog.getOpenFileName(self.centralwidget, "選取AP影像", os.getcwd())  # 起始路径
 
         if dir_choose == "":
-            print("\n取消选择")
+            print("\n取消選擇")
             return
 
-        print("\n你选择的文件夹为:")
+        qpixmap = QtGui.QPixmap()  # 建立 QPixmap 物件
+        qpixmap.load(dir_choose[0])  # 讀取圖片
+        self.label_3.setPixmap(qpixmap)
+        print("\n你選擇的資料夾為:")
         print(dir_choose)
-        self.sign_one.emit(dir_choose)
+        self.sign_AP.emit(dir_choose[0])
+    def slot_LAT_chooseDir(self):
+        dir_choose = QFileDialog.getOpenFileName(self.centralwidget, "選取LAT影像", os.getcwd())  # 起始路径
+
+        if dir_choose == "":
+            print("\n取消選擇")
+            return
+
+        qpixmap = QtGui.QPixmap()  # 建立 QPixmap 物件
+        qpixmap.load(dir_choose[0])  # 讀取圖片
+        self.label_4.setPixmap(qpixmap)
+        print("\n你選擇的資料夾為:")
+        print(dir_choose)
+        self.sign_LAT.emit(dir_choose[0])
+
+    def slot_Cal_CT(self):
+        self.sign_ct_cal.emit('start')
+        print('start CT calculating......')
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])

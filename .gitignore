@@ -33,3 +33,4 @@ XsCT/data/COLONOgraphy/mesh_data_256/
 XsCT/result/
 XsCT/result_128_v3/
 XsCT/data/sawbone/
+XsCT/test/image_operator.py

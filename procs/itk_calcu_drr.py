@@ -105,12 +105,12 @@ def DigitallyReconstructedRadiograph(
     return filter.GetOutput()
 
 # for path in Path:
-for num in range(1):
-    save = 'C:\\XsCT\\XsCT\\data\\sawbone\\sawbone_data_%04d' % (num+1)
+for num in range(1092):
+    save = 'C:\\XsCT\\XsCT\\data\\sawbone\\cropped\\sawbone_data_%04d' % (num+1)
     input_name = save + '\\result_img.nii'
     save_path = save + "\\resized_drr02.bmp"
     # save_ct = save + '\\result_img.nii'
-
+    print(input_name)
     volume_lung = itk.imread(input_name, itk.ctype('float'))  # 读取影像文件，并将数据格式转换为float
     print(volume_lung.GetLargestPossibleRegion().GetSize())
     print(volume_lung.GetBufferedRegion().GetSize())
@@ -119,7 +119,7 @@ for num in range(1):
     # view(volume_lung, gradient_opacity=0.5, cmp=itkwidgets.cm.bone)
 
     output_image_pixel_spacing = [1, 1, 1]
-    output_image_size = [256, 256, 1]  # [501, 501, 1]
+    output_image_size = [128, 128, 1]  # [501, 501, 1]
 
     # volume_lung = itk.GetArrayFromImage(volume_lung)
     # volume_lung = volume_lung[:,::-1,:]

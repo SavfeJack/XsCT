@@ -9,7 +9,61 @@ import os
 import glob
 import csv
 
-def crop_ROI(input_img, seg_img):
+def crop_ROI(input_img, HU_num):
+    volume = sitk.GetArrayFromImage(input_img)
+    spacing = input_img.GetSpacing()
+    for i in range(0, volume.shape[0]):
+        result = volume[i, :, :]
+        if ((result > HU_num) & (result<2000)).any():
+            min_x = i
+            # print("axis" + str(0) + " min:" + str(i))
+            break
+
+    for i in range(volume.shape[0] - 150, 0, -1):
+        result = volume[i, :, :]
+        if ((result > HU_num) & (result<2000)).any():
+            max_x = i
+            # print("axis" + str(0) + " max:" + str(i))
+            break
+
+    for i in range(0, volume.shape[1]):
+        result = volume[:, i, :]
+        if ((result > HU_num) & (result<2000)).any():
+            min_y = i
+            # print("axis" + str(1) + " min:" + str(i))
+            break
+
+    for i in range(volume.shape[1] - 1, 0, -1):
+        result = volume[:, i, :]
+        if ((result > HU_num) & (result<2000)).any():
+            max_y = i
+            # print("axis" + str(1) + " max:" + str(i))
+            break
+
+    for i in range(0, volume.shape[2]):
+        result = volume[:, :, i]
+        if ((result > HU_num) & (result<2000)).any():
+            min_z = i
+            # print("axis" + str(2) + " min:" + str(i))
+            break
+
+    for i in range(volume.shape[2] - 150, 0, -1):
+        result = volume[:, :, i]
+        if ((result > HU_num) & (result<2000)).any():
+            max_z = i
+            # print("axis" + str(2) + " max:" + str(i))
+            break
+
+    print("axisX: " + str(min_x) + ", " + str(max_x))
+    print("axisY: " + str(min_y) + ", " + str(max_y))
+    print("axisZ: " + str(min_z) + ", " + str(max_z))
+    image_origin = sitk.GetArrayFromImage(input_img)
+    result = image_origin[max(0, (min_x - 30)):min(image_origin.shape[0]-1, (max_x + 30)), max(0, (min_y - 30)):min(image_origin.shape[1]-1, (max_y + 30)), max(0, (min_z - 30)):min(image_origin.shape[2]-1, (max_z + 30))]
+    result = sitk.GetImageFromArray(result)
+    result.SetSpacing(spacing)
+    return result
+
+def crop_ROIwithMask(input_img, seg_img):
     volume = sitk.GetArrayFromImage(seg_img)
     for i in range(0, volume.shape[0]):
         result = volume[i, :, :]
@@ -158,8 +212,7 @@ def img_pad(input_img, target_size=[258, 258, 258], constant=-1024):
     #3D, Z-slice first
     img = sitk.GetArrayFromImage(input_img)
     while img.shape[0] < 256:
-        img = np.pad(
-            img, [(1, 1), (0, 0), (0, 0)], mode='constant', constant_values=constant)
+        img = np.pad(img, [(1, 1), (0, 0), (0, 0)], mode='constant', constant_values=constant)
 
     img = sitk.GetImageFromArray(img)
 
@@ -247,42 +300,141 @@ if __name__ == "__main__":
     #         sitk.WriteImage(result_img, path + 'result_img.nii')
     #         num += 1
 
+
+    # # # #--------------------------------------------------------------------------------------
+    # # # sawbone read and preprocess
+    # Save_dir = 'C:\\XsCT\\XsCT\\data\\sawbone\\'
+    # # ROOT_dir = 'D:\\Dataset\\sawbone\\S66710\\S3010\\'
+    # datapath = Save_dir+'uncrop\\'
+    # ROOT = glob.glob(datapath + '*')
+    #
+    # num = 1
+    # f = open(Save_dir+'sawbone_list.txt', "r", encoding="utf-8")
+    # for line in f.read().splitlines():
+    #     if num > 6:
+    #         break
+    #     ROOT_dir = line
+    #     print(ROOT_dir)
+    #
+    #     # # DICOM series read part
+    #     series_IDs = sitk.ImageSeriesReader.GetGDCMSeriesIDs(ROOT_dir)
+    #     if not series_IDs:
+    #         print("ERROR: given directory \"" + ROOT_dir + "\" does not contain a DICOM series.")
+    #
+    #     series_file_names = sitk.ImageSeriesReader.GetGDCMSeriesFileNames(ROOT_dir, series_IDs[0])
+    #
+    #     series_reader = sitk.ImageSeriesReader()
+    #     series_reader.SetFileNames(series_file_names)
+    #
+    #     series_reader.MetaDataDictionaryArrayUpdateOn()
+    #     series_reader.LoadPrivateTagsOn()
+    #     image3D = series_reader.Execute()
+    #
+    #     img = crop_ROI(image3D, 1000)
+    #     img = img_respacing(img)
+    #     target_size = list(img.GetSize())
+    #     for idx, x in enumerate(target_size):
+    #         if x < 128:
+    #             target_size[idx] = 128
+    #
+    #     img = img_pad(img, target_size)
+    #     arr = sitk.GetArrayFromImage(img)
+    #     arr = arr[::-1, ::-1, :]
+    #     # result_img = arr[int((arr.shape[0] / 2) - 128):int((arr.shape[0] / 2) + 128),
+    #     #              int((arr.shape[1] / 2) - 128):int((arr.shape[1] / 2) + 128),
+    #     #              int((arr.shape[2] / 2) - 128):int((arr.shape[2] / 2) + 128)]
+    #     result_img = sitk.GetImageFromArray(arr)
+    #     # step = 50
+    #     # x_iter = (arr.shape[0]-128)//step
+    #     # x_iter_last = (arr.shape[0]-128)%step
+    #     # y_iter = (arr.shape[1]-128)//step
+    #     # y_iter_last =(arr.shape[1]-128)%step
+    #     # z_iter = (arr.shape[2]-128)//step
+    #     # z_iter_last = (arr.shape[2]-128)%step
+    #     # for i in range(x_iter+2):
+    #     #     x_range = [(step * i), (step * i + 127)]
+    #     #     if i == x_iter+1:
+    #     #         x_range = [(step * (i-1) + x_iter_last + 1), (step * (i-1) + 128 + x_iter_last)]
+    #     #     for j in range(y_iter+2):
+    #     #         y_range = [(step * j), (step * j + 127)]
+    #     #         if j == y_iter+1:
+    #     #             y_range = [(step * (j-1) + y_iter_last + 1), (step * (j-1) + 128 + y_iter_last)]
+    #     #         for k in range(z_iter+2):
+    #     #             z_range = [(step*k), (step*k+127)]
+    #     #             if k == z_iter+1:
+    #     #                 z_range = [(step*(k-1)+z_iter_last + 1), (step*(k-1) + 128 + z_iter_last)]
+    #     #
+    #     #             result_img = arr[x_range[0]:(x_range[1]+1), y_range[0]:(y_range[1]+1), z_range[0]:(z_range[1]+1)]
+    #     #             result_img = sitk.GetImageFromArray(result_img)
+    #     #             path = Save_dir + 'sawbone_data_%04d\\' % num
+    #     #             if not os.path.exists(path):
+    #     #                 os.mkdir(path)
+    #     #             # sitk.WriteImage(img, path + 'temp.nii')
+    #     #             sitk.WriteImage(result_img, path + 'result_img.nii')
+    #     #             num += 1
+    #     # # ----------------------------------------------------------------------------------
+    #     path = Save_dir + 'uncrop/sawbone_data_%04d\\' % num
+    #     # if not os.path.exists(path):
+    #     #     os.mkdir(path)
+    #     # sitk.WriteImage(result_img, ROOT_dir + '\\temp.nii')
+    #     sitk.WriteImage(result_img, path + 'result_img.nii')
+    #     num += 1
+    # f.close()
+
+
+
     # # #--------------------------------------------------------------------------------------
-    # sawbone read and preprocess
-    Save_dir = 'C:\\XsCT\\XsCT\\data\\sawbone\\'
-    ROOT_dir = 'D:\\Dataset\\sawbone\\S66710\\S3010\\'
+    # # # 修正部分 sawbone CT
+    # Save_dir = 'C:\\XsCT\\XsCT\\data\\sawbone\\cropped\\'
+    # datapath = 'D:\\Dataset\\sawbone\\all_cropped\\'
+    # ROOT = glob.glob(datapath + '*')
+    # SAVE = glob.glob(Save_dir + '*')
+    #
+    # num = 1
+    # for line in range(len(ROOT)):
+    #     # ROOT_dir = line
+    #     ROOT_dir = ROOT[line]
+    #     print(ROOT_dir)
+    #
+    #     # # nii file read part
+    #     image3D = sitk.ReadImage(ROOT_dir + "\\result_img.nii")
+    #     size = np.array(list(reversed(image3D.GetSize())))
+    #     spacing = np.array(list(reversed(image3D.GetSpacing())))
+    #     print('size: ', size)
+    #     print('spacing: ', spacing)
+    #
+    #     arr = sitk.GetArrayFromImage(image3D)
+    #     constant = -1024
+    #     while arr.shape[0] < 128:
+    #         arr = np.pad(arr, [(1, 1), (0, 0), (0, 0)], mode='constant', constant_values=constant)
+    #     while arr.shape[1] < 128:
+    #         arr = np.pad(arr, [(0, 0), (1, 1), (0, 0)], mode='constant', constant_values=constant)
+    #     while arr.shape[2] < 128:
+    #         arr = np.pad(arr, [(0, 0), (0, 0), (1, 1)], mode='constant', constant_values=constant)
+    #
+    #     # img = crop_ROI(image3D, 300)
+    #     # img = img_respacing(img)
+    #     # target_size = list(img.GetSize())
+    #     # for idx, x in enumerate(target_size):
+    #     #     if x < 128:
+    #     #         target_size[idx] = 128
+    #     #
+    #     # img = img_pad(img, target_size)
+    #
+    #     # arr = sitk.GetArrayFromImage(image3D)
+    #     # arr = arr[(arr.shape[0]//2-64):(arr.shape[0]//2+64), (arr.shape[1]//2-64):(arr.shape[1]//2+64), (arr.shape[2]//2-64):(arr.shape[2]//2+64)]
+    #     for i in range(26):
+    #         arr_result = arr[(arr.shape[0] // 2 - (2*i)):(arr.shape[0] // 2 + (128-(2*i))), (arr.shape[1] // 2 - 64):(arr.shape[1] // 2 + 64), (arr.shape[2] // 2 - 64):(arr.shape[2] // 2 + 64)]
+    #         result_img = sitk.GetImageFromArray(arr_result)
+    #         path = Save_dir + 'sawbone_data_%04d\\' % num
+    #         if not os.path.exists(path):
+    #             os.mkdir(path)
+    #         sitk.WriteImage(result_img, path + '\\result_img.nii')
+    #         num += 1
+    #     # sitk.WriteImage(result_img, SAVE[line] + '\\result_img.nii')
+    #     # sitk.WriteImage(result_img, ROOT_dir + '\\result_img.nii')
+    #     # num += 1
 
-    series_IDs = sitk.ImageSeriesReader.GetGDCMSeriesIDs(ROOT_dir)
-    if not series_IDs:
-        print("ERROR: given directory \"" + ROOT_dir + "\" does not contain a DICOM series.")
-
-    series_file_names = sitk.ImageSeriesReader.GetGDCMSeriesFileNames(ROOT_dir, series_IDs[0])
-
-    series_reader = sitk.ImageSeriesReader()
-    series_reader.SetFileNames(series_file_names)
-
-    series_reader.MetaDataDictionaryArrayUpdateOn()
-    series_reader.LoadPrivateTagsOn()
-    image3D = series_reader.Execute()
-    size = np.array(list(reversed(image3D.GetSize())))
-    spacing = np.array(list(reversed(image3D.GetSpacing())))
-    print('size: ', size)
-    print('spacing: ', spacing)
-
-    img = img_respacing(image3D)
-    img = img_pad(img)
-    arr = sitk.GetArrayFromImage(img)
-    arr = arr[::-1, ::-1, :]
-    result_img = arr[int((arr.shape[0] / 2) - 128):int((arr.shape[0] / 2) + 128),
-                 int((arr.shape[1] / 2) - 128):int((arr.shape[1] / 2) + 128),
-                 int((arr.shape[2] / 2) - 128):int((arr.shape[2] / 2) + 128)]
-    result_img = sitk.GetImageFromArray(result_img)
-
-    path = Save_dir + 'sawbone_data_%04d\\' % 1
-    if not os.path.exists(path):
-        os.mkdir(path)
-    # sitk.WriteImage(img, path + 'temp.nii')
-    sitk.WriteImage(result_img, path + 'result_img.nii')
 
     # # #--------------------------------------------------------------------------------------
     # # # # read and process
@@ -323,20 +475,23 @@ if __name__ == "__main__":
     # resized_xray2 = origin_xray2.resize([256, 256])
     # resized_xray2.save(ROOT_dir + 'resized_drr02.bmp')
     #
-    # # # # concatenate from here
-    # ROOT_dir = 'C:\\XsCT\\XsCT\\data\\COLONOgraphy\\mesh_data_256'
-    # Path = glob.glob(os.path.join(ROOT_dir, '*'))
-    # for num in range(924):
-    #     ROOT_dir = Path[num]
-    #     result_img = sitk.ReadImage(ROOT_dir + '\\result_img.nii')
-    #     np_result_img = sitk.GetArrayFromImage(result_img)
-    #     xray1 = Image.open(ROOT_dir + '\\resized_drr01.bmp')
-    #     xray2 = Image.open(ROOT_dir + '\\resized_drr02.bmp')
-    #
-    #     f = h5py.File(ROOT_dir + '\\ct_xray_data.h5', 'w')
-    #     f['ct'] = np_result_img
-    #     f['ori_size'] = np.int64(320)
-    #     f['spacing'] = [1.0, 1.0, 1.0]
-    #     f['xray1'] = xray1
-    #     f['xray2'] = xray2
-    #     f.close()
+    # # # concatenate from here
+    ROOT_dir = 'C:\\XsCT\\XsCT\\data\\sawbone\\cropped'
+    Path = glob.glob(os.path.join(ROOT_dir, '*'))
+    for num in range(1):
+        ROOT_dir = 'C:\\XsCT\\XsCT\\CT' # Path[num]
+        result_img = sitk.ReadImage(ROOT_dir + '\\result_img.nii')
+        np_result_img = sitk.GetArrayFromImage(result_img)
+        # xray1 = Image.open(ROOT_dir + '\\resized_drr01.bmp')
+        # xray2 = Image.open(ROOT_dir + '\\resized_drr02.bmp')
+
+        # xray1 = xray1.convert('L')
+        # xray2 = xray2.convert('L')
+
+        f = h5py.File(ROOT_dir + '\\ct_xray_data.h5', 'w')
+        f['ct'] = np_result_img
+        f['ori_size'] = np.int64(320)
+        f['spacing'] = [1.0, 1.0, 1.0]
+        # f['xray1'] = xray1
+        # f['xray2'] = xray2
+        f.close()
